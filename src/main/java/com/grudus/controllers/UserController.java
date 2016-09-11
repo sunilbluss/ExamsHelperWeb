@@ -1,12 +1,11 @@
 package com.grudus.controllers;
 
 import com.grudus.entities.User;
+import com.grudus.helpers.UserValidator;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.List;
@@ -15,10 +14,12 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{username}")
@@ -37,13 +38,24 @@ public class UserController {
         return "All records were deleted "  + userRepository.count();
     }
 
-    @RequestMapping(value = "add/{user}")
-    public String addUser(@PathVariable("user") String userName) {
-        User user = new User(userName, "dupa", "hehe@email.com", Calendar.getInstance().getTime());
-        System.err.println("addUser method " + user);
-        userRepository.save(user);
 
-        return user + " was added";
+    @RequestMapping(method = RequestMethod.POST, value = "/add")
+    public void addUser(@RequestParam("username") String userName, @RequestParam("password") String password,
+                        @RequestParam("email") String email) {
+
+        // TODO: 11.09.16 debug only
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2015, 4, 4);
+
+        UserValidator validator = new UserValidator(userRepository);
+        if (!validator.inputsAreValid(userName, password, email, calendar.getTime()))
+            return;
+
+        if (validator.userExist(userName))
+            throw new RuntimeException("User exist");
+
+        userRepository.save(new User(userName, passwordEncoder.encode(password), email, calendar.getTime()));
+
     }
 
 

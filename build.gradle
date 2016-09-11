@@ -36,4 +36,6 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	runtime('mysql:mysql-connector-java')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+	compile group: 'commons-validator', name: 'commons-validator', version: '1.5.1'
 }
