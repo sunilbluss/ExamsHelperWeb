@@ -1,4 +1,4 @@
-package com.grudus.helpers;
+package com.grudus.helpers.validation;
 
 import org.apache.commons.validator.routines.EmailValidator;
 

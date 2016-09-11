@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -33,13 +34,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/", "/add").permitAll()
-                .antMatchers("/users", "/{username}/*", "/user/*").hasRole("USER")
+                .antMatchers("/{username}/*", "/user/*").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/users", "/deleteAll").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .permitAll()
                 .and()
                 .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login")
                 .permitAll()
                 .and()
                 .csrf()
@@ -52,6 +56,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .jdbcAuthentication()
                 .dataSource(dataSource)
                 .passwordEncoder(passwordEncoder());
+
+        // TODO: 12.09.16 delete --------------
+        auth
+                .inMemoryAuthentication()
+                .withUser("admin")
+                .password("admin")
+                .roles("ADMIN");
+        // -----------------------------------
     }
 
 

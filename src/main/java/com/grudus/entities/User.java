@@ -4,7 +4,6 @@ package com.grudus.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -28,6 +27,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "enabled")
+    private boolean enabled;
+
     @Column(name = "register_date")
     private Date date;
 
@@ -43,10 +45,19 @@ public class User {
         this.email = email;
         this.date = date;
         this.exams = exams;
+        this.enabled = true;
     }
 
     public User(String userName, String password, String email, Date date) {
         this(userName, password, email, date, new ArrayList<>(0));
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public Collection<Exam> getExams() {
