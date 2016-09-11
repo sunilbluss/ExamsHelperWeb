@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Calendar;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
+    @RequestMapping(method = RequestMethod.GET, value = "/user/{username}")
     public User getUser(@PathVariable("username") String userName) {
         return userRepository.findByUserName(userName).orElse(User.empty());
     }
@@ -41,7 +42,9 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
     public void addUser(@RequestParam("username") String userName, @RequestParam("password") String password,
-                        @RequestParam("email") String email) {
+                        @RequestParam("email") String email, Principal principal) {
+
+        System.err.println("principal: " + principal.getName());
 
         // TODO: 11.09.16 debug only
         Calendar calendar = Calendar.getInstance();

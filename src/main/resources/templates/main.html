@@ -12,6 +12,7 @@
 <h3>Hello, world!</h3>
 
 <form method="post" action="/add">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input type="text" id="username" name="username" placeholder="username" />
     <input type="password" id="password" name="password" placeholder="password" />
     <input type="email" id="email" name="email" placeholder="email" />

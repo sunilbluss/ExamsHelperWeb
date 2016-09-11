@@ -12,10 +12,4 @@ public class ExamsHelperWebApplication {
 		SpringApplication.run(ExamsHelperWebApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner run() {
-		return args -> {
-			System.err.println("Hello, world!");
-		};
-	}
 }
