@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link href="../static/css/main.css" th:href="@{/css/main.css}" rel="stylesheet" type="text/css"/>
+
+    <meta charset="UTF-8" />
+    <title>Main page</title>
+</head>
+<body>
+
+<h3>Hello, world!</h3>
+
+<form method="post" action="/add">
+    <input type="text" id="username" name="username" placeholder="username" />
+    <input type="password" id="password" name="password" placeholder="password" />
+    <input type="email" id="email" name="email" placeholder="email" />
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>
