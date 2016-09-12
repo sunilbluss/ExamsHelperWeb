@@ -1,6 +1,7 @@
 package com.grudus.configuration;
 
 import com.grudus.helpers.EmailSender;
+import com.grudus.helpers.SessionIdentifierGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

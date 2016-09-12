@@ -2,6 +2,7 @@ package com.grudus;
 
 import com.grudus.configuration.MailProperties;
 import com.grudus.helpers.EmailSender;
+import com.grudus.helpers.SessionIdentifierGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.mail.MessagingException;
+import java.util.stream.IntStream;
 
 @SpringBootApplication
 public class ExamsHelperWebApplication {
@@ -19,7 +21,7 @@ public class ExamsHelperWebApplication {
 
 
 	@Bean
-	public CommandLineRunner run(EmailSender emailSender) {
+	public CommandLineRunner run() {
 		return args -> {
 		};
 	}

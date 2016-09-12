@@ -3,6 +3,7 @@ package com.grudus.controllers;
 import com.grudus.entities.Exam;
 import com.grudus.entities.User;
 import com.grudus.helpers.EmailSender;
+import com.grudus.helpers.SessionIdentifierGenerator;
 import com.grudus.repositories.ExamRepository;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +39,4 @@ public class ExamController {
         return examsRepository.findByUser(user);
     }
 
-    // TODO: 12.09.16 debug only
-    @RequestMapping("/email")
-    public String email() {
-        try {
-            emailSender.send("hello, world!", "ojciecpolibudacos@gmail.com");
-        } catch (MessagingException e) {
-            return "Cannot send an email";
-        }
-        return "Email sent successfully";
-    }
 }
