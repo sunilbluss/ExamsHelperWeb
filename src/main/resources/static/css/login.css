@@ -1,0 +1,10 @@
+body {
+    background-color: #E8EAF6;
+}
+
+#login {
+    width: 50%;
+    margin: auto;
+
+    text-align: center;
+}

@@ -12,4 +12,9 @@ public class StaticController {
     public String mainPage() {
         return "main";
     }
+
+    @RequestMapping(value = "/login")
+    public String loginPage() {
+        return "login";
+    }
 }
