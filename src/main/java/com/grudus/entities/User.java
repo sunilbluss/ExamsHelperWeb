@@ -7,11 +7,12 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity(name = "users")
 public class User {
 
-    private static final User EMPTY = new User(null, null, null, null, null);
+    private static final User EMPTY = new User(null, null, null, null, null, null);
 
     @Column(name = "id")
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -22,6 +23,7 @@ public class User {
     private String userName;
 
     @Column(length = 64, name = "password")
+    @JsonIgnore
     private String password;
 
     @Column(name = "email")
@@ -37,19 +39,24 @@ public class User {
     @JsonIgnore
     private Collection<Exam> exams;
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Subject> subjectList;
+
     public User() {}
 
-    public User(String userName, String password, String email, Date date, Collection<Exam> exams) {
+    public User(String userName, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList) {
         this.userName = userName;
         this.password = password;
         this.email = email;
         this.date = date;
         this.exams = exams;
+        this.subjectList = subjectList;
         this.enabled = true;
     }
 
     public User(String userName, String password, String email, Date date) {
-        this(userName, password, email, date, new ArrayList<>(0));
+        this(userName, password, email, date, new ArrayList<>(0), new ArrayList<>(0));
     }
 
     public boolean isEnabled() {
@@ -66,6 +73,14 @@ public class User {
 
     public void setExams(Collection<Exam> exams) {
         this.exams = exams;
+    }
+
+    public List<Subject> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(List<Subject> subjectList) {
+        this.subjectList = subjectList;
     }
 
     public static User empty() {

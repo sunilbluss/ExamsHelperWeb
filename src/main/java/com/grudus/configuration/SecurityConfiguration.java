@@ -33,24 +33,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/", "/add", "/add/**").permitAll()
-                .antMatchers("/{username}/*", "/user/*").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/users", "/deleteAll").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                    .antMatchers("/", "/add", "/add/**").permitAll()
+                    .antMatchers("/{username}/*", "/user/*").hasAnyRole("USER", "ADMIN")
+                    .antMatchers("/users", "/deleteAll").hasRole("ADMIN")
+                    .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login")
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .permitAll()
+                    .loginPage("/login")
+                    .usernameParameter("username")
+                    .passwordParameter("password")
+                    .permitAll()
                 .and()
                 .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                    .logoutSuccessUrl("/login?logout")
+                    .permitAll()
                 .and()
                 .csrf()
-                .csrfTokenRepository(csrfTokenRepository());
+                    .csrfTokenRepository(csrfTokenRepository());
     }
 
     @Autowired

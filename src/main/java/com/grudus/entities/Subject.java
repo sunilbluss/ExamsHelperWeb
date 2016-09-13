@@ -23,12 +23,25 @@ public class Subject {
     @JsonIgnore
     private List<Exam> exams;
 
-    public Subject(String title, String color) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Subject(String title, String color, User user) {
         this.title = title;
         this.color = color;
+        this.user = user;
     }
 
     public Subject() {
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Exam> getExams() {
