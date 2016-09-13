@@ -64,7 +64,7 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
     public void addUserToWaitingRoom(@RequestParam("username") String userName, @RequestParam("password") String password,
-                                     @RequestParam("email") String email, HttpServletRequest request) {
+                                     @RequestParam("email") String email) {
 
 
         Date registerDate = Calendar.getInstance().getTime();
@@ -78,8 +78,8 @@ public class UserController {
 
         String key = "";
         try {
-            key = emailSender.sendKeyMessageAndGetKey(userName, email, request);
-        } catch (MessagingException | UnknownHostException e) {
+            key = emailSender.sendKeyMessageAndGetKey(userName, email);
+        } catch (MessagingException e) {
             e.printStackTrace();
         }
 

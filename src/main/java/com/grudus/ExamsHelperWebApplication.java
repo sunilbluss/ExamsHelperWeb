@@ -21,8 +21,9 @@ public class ExamsHelperWebApplication {
 
 
 	@Bean
-	public CommandLineRunner run() {
+	public CommandLineRunner run(MailProperties properties) {
 		return args -> {
+			System.err.println(String.format(properties.getMessage(), "grudus", "grudus", "121234"));
 		};
 	}
 }

@@ -8,16 +8,11 @@ import org.springframework.stereotype.Component;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Properties;
 
 @Component
 public class EmailSender {
 
-    public static final String DEFAULT_MESSAGE = "Hello, %s! To complete the registration click the following link: http://%s:%d/add/%s/%s";
     private Properties properties;
     private Session session;
 
@@ -45,22 +40,22 @@ public class EmailSender {
         mimeMessage = new MimeMessage(session);
         mimeMessage.setFrom(new InternetAddress(mailProperties.getUserName()));
         mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(emailRecipient));
-        mimeMessage.setSubject("MESSAGE FROM JAVA");
+        mimeMessage.setSubject(mailProperties.getMessageSubject());
         mimeMessage.setText(message);
 
         Transport.send(mimeMessage);
         System.out.println("Sent message successfully...");
     }
 
-    // TODO: 13.09.16 change this request
-    public String sendKeyMessageAndGetKey(String userName, String emailRecipient, HttpServletRequest request) throws MessagingException, UnknownHostException {
+    public String sendKeyMessageAndGetKey(String userName, String emailRecipient) throws MessagingException {
         String key = generator.nextSessionId();
-        send(String.format(DEFAULT_MESSAGE,
-                userName,
-                request.getLocalAddr(),
-                request.getLocalPort(),
-                userName,
-                key), emailRecipient);
+        String message = new MessageBuilder()
+                .setKey(key)
+                .setUserName(userName)
+                .build();
+
+        send(message, emailRecipient);
+
         return key;
     }
 
@@ -73,6 +68,32 @@ public class EmailSender {
             String username = mailProperties.getUserName();
             String password = mailProperties.getPassword();
             return new PasswordAuthentication(username, password);
+        }
+    }
+
+
+    private class MessageBuilder {
+        private String userName;
+        private String key;
+
+        public MessageBuilder setUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        private MessageBuilder setKey(String key) {
+            this.key = key;
+            return this;
+        }
+
+        private String build() {
+            if (userName == null || key == null)
+                throw new NullPointerException("Username and key cannot be null");
+
+            return String.format(mailProperties.getMessage(),
+                    userName,
+                    userName,
+                    key);
         }
     }
 
