@@ -1,15 +1,11 @@
 package com.grudus.controllers;
 
-import com.grudus.entities.Exam;
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
 import com.grudus.repositories.SubjectRepository;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,20 +21,21 @@ public class SubjectController {
         this.userRepository = userRepository;
     }
 
-    @RequestMapping("/subjects")
+    @RequestMapping("/api/admin/subjects")
     public List<Subject> getAllSubjects(@RequestParam(name = "user", required = false) String userName) {
         if (userName != null)
             return subjectRepository.findByUser(userRepository.findByUserName(userName).orElse(User.empty()));
         return subjectRepository.findAll();
     }
 
-    // TODO: 13.09.16 change to post and another url and all
-    @RequestMapping("/subject/add")
-    public void addSubject(@RequestParam("user") String userName,
+
+    @RequestMapping(value = "/api/user/{userName}/subjects/add", method = RequestMethod.POST)
+    public void addSubject(@PathVariable("userName") String userName,
                            @RequestParam("subject") String subjectTitle,
                            @RequestParam("color") String color) {
 
-        User user = userRepository.findByUserName(userName).orElseThrow(() -> new NullPointerException("Cannot find the user " + userName));
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new NullPointerException("Cannot find the user " + userName));
 
         if (user.getSubjectList()
                 .stream()
@@ -50,8 +47,8 @@ public class SubjectController {
 
     }
 
-    @RequestMapping("/subject/{username}/deleteAll")
-    public void deleteAllMessages(@PathVariable("username") String userName) {
+    @RequestMapping("/api/user/{username}/subjects/deleteAll")
+    public void deleteAllSubjects(@PathVariable("username") String userName) {
         User user = userRepository.findByUserName(userName).orElseThrow(() -> new NullPointerException("Cannot find the user " + userName));
 
         user.getSubjectList()

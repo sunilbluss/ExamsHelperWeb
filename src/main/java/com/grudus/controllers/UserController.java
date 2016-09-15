@@ -41,7 +41,7 @@ public class UserController {
         this.emailSender = emailSender;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/user/{username}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/user/{username}")
     public User getUser(@PathVariable("username") String userName, Principal principal) {
         if (principal == null || !principal.getName().equals(userName))
             return User.empty();
@@ -49,12 +49,39 @@ public class UserController {
         return userRepository.findByUserName(userName).orElse(User.empty());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/users")
+    @RequestMapping(value = "/api/user")
+    public User getUser(@RequestParam(name = "username", required = false) String userName,
+                        @RequestParam(name = "id", required = false) String id,
+                        Principal principal) {
+        if (userName == null && id == null)
+            return User.empty();
+
+        if (!id.matches("\\d+"))
+            return User.empty();
+
+        User user;
+
+        if (userName == null) {
+            user = userRepository.findOne(Long.valueOf(id));
+            if (user == null)
+                user = User.empty();
+        }
+
+        else
+            user = userRepository.findByUserName(userName).orElse(User.empty());
+
+        if (!principal.getName().equals(user.getUserName()))
+            return User.empty();
+
+        return user;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/users")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @RequestMapping("/deleteAll")
+    @RequestMapping("/api/admin/deleteAll")
     public String deleteAll() {
         authorityRepository.deleteAll();
         userRepository.deleteAll();
@@ -62,7 +89,7 @@ public class UserController {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/add")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/add")
     public void addUserToWaitingRoom(@RequestParam("username") String userName, @RequestParam("password") String password,
                                      @RequestParam("email") String email) {
 
@@ -86,7 +113,17 @@ public class UserController {
         waitingUserRepository.save(new WaitingUser(userName, passwordEncoder.encode(password), email, key));
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/add/{username}/{key}")
+
+    // TODO: 16.09.16 delete - method checks if android request call was reached
+    @RequestMapping(method = RequestMethod.POST, value = "/post")
+    public String doPost(@RequestParam(name = "username", required = false) String username) {
+        System.err.println("in post method");
+        System.err.println("username: (" + username + ")");
+
+        return "after post";
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/add/{username}/{key}")
     public String addUser(@PathVariable("username") String username, @PathVariable("key") String key) {
 
         WaitingUser user = waitingUserRepository.findByKey(key)

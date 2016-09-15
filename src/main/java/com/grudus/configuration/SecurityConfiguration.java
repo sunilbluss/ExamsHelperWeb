@@ -33,9 +33,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                    .antMatchers("/", "/add", "/add/**").permitAll()
-                    .antMatchers("/{username}/*", "/user/*").hasAnyRole("USER", "ADMIN")
-                    .antMatchers("/users", "/deleteAll").hasRole("ADMIN")
+                    .antMatchers("/api/add*", "/post").permitAll()
+                    .antMatchers("/api/admin/*").hasRole("ADMIN")
+                    .antMatchers("/api/*").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -50,7 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .and()
                 .csrf()
-                    .csrfTokenRepository(csrfTokenRepository());
+                    .disable();
+
     }
 
     @Autowired
@@ -60,7 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .dataSource(dataSource)
                 .passwordEncoder(passwordEncoder());
 
-        // TODO: 12.09.16 delete --------------
+        // TODO: 12.09.16 debug only --------------
         auth
                 .inMemoryAuthentication()
                 .withUser("admin")
@@ -70,6 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
 
+    // TODO: 16.09.16 Disabled - android request problems
     private CsrfTokenRepository csrfTokenRepository() {
         HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
         repository.setSessionAttributeName("_csrf");

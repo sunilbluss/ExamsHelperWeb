@@ -28,7 +28,7 @@ public class ExamController {
         this.subjectRepository = subjectRepository;
     }
 
-    @RequestMapping("/user/{userName}/exams")
+    @RequestMapping("/api/user/{userName}/exams")
     public List<Exam> getAllUserExams(@PathVariable("userName") String userName, Principal principal) {
         User user = userRepository.findByUserName(userName).orElse(User.empty());
 
@@ -39,8 +39,7 @@ public class ExamController {
     }
 
 
-    // TODO: 13.09.16 change to post
-    @RequestMapping(value = "/user/{userName}/exams/add", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/{userName}/exams/add")
     public void addExam(@PathVariable("userName") String userName,
                         @RequestParam("subject") long subjectID,
                         @RequestParam("info") String examInfo,
