@@ -7,14 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 
 @Service
@@ -48,25 +52,19 @@ public class TokenAuthenticationService {
 
     public Authentication getAuthentication(HttpServletRequest request) {
         final String token = request.getHeader(AUTH_HEADER_NAME);
-        System.err.println("\n----------");
-        System.err.println("all request headers: ");
-
-        Enumeration<String> enumeration = request.getHeaderNames();
-        while (enumeration.hasMoreElements()) {
-            String enUm = enumeration.nextElement();
-            System.err.println(enUm + " -> " + request.getHeader(enUm));
-        }
-        System.err.println("----------\n");
 
         System.err.println("trying to get authentication ---> token for " + AUTH_HEADER_NAME + " is: " + token);
         if (token != null) {
             try {
                 final User user = tokenHandler.parseUserFromToken(token);
                 if (user != null)
-                    return new UsernamePasswordAuthenticationToken((Principal) user::getUserName, user.getPassword());
+                    return new UsernamePasswordAuthenticationToken(
+                            (Principal) user::getUserName,
+                            user.getPassword(),
+                            new ArrayList<>(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
 
             } catch (IOException e) {
-                throw new RuntimeException("Cannot parse user from token");
+                throw new RuntimeException("Cannot parse user from token", e);
             }
         }
         return null;

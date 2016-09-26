@@ -5,6 +5,8 @@ import com.grudus.repositories.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
@@ -14,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 
 public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter {
@@ -40,9 +45,14 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.err.println("successfull auth " + authResult.getName());
         User authenticatedUser = userRepository.findByUserName(authResult.getName()).orElseThrow(() -> new RuntimeException("NIE MA " + authResult.getName()));
-        UsernamePasswordAuthenticationToken auth
-                = new UsernamePasswordAuthenticationToken((Principal) authenticatedUser::getUserName, authenticatedUser.getPassword());
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                (Principal) authenticatedUser::getUserName,
+                authenticatedUser.getPassword(),
+                new ArrayList<>(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
 
+
+
+        System.err.println("auth result after successfull auth " + authResult);
         tokenAuthenticationService.addAuthentication(response, auth);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
