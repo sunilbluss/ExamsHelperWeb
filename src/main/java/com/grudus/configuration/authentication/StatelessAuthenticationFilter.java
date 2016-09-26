@@ -1,4 +1,4 @@
-package com.grudus.configuration;
+package com.grudus.configuration.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.Principal;
 
 
 public class StatelessAuthenticationFilter extends OncePerRequestFilter {
@@ -22,11 +21,9 @@ public class StatelessAuthenticationFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.err.println("start do filter method AuthenticationFilter");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         Authentication auth =  authenticationService.getAuthentication(request);
-        System.err.println("doFilterInternal: auth is:" + auth);
-        System.err.println("principal: " + ((Principal)auth.getPrincipal()).getName() + " , name=" + auth.getName() + ", creditals="  + auth.getCredentials() );
         if (auth != null)
             SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);

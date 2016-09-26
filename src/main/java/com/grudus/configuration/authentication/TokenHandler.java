@@ -1,4 +1,4 @@
-package com.grudus.configuration;
+package com.grudus.configuration.authentication;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
