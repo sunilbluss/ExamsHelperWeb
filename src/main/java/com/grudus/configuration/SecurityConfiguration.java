@@ -1,5 +1,6 @@
 package com.grudus.configuration;
 
+import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,9 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -18,10 +19,16 @@ import javax.sql.DataSource;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final DataSource dataSource;
+    private final TokenAuthenticationService tokenAuthenticationService;
+    private final UserRepository userRepository;
+
+
 
     @Autowired
-    public SecurityConfiguration(DataSource dataSource) {
+    public SecurityConfiguration(DataSource dataSource, TokenAuthenticationService tokenAuthenticationService, UserRepository userRepository) {
         this.dataSource = dataSource;
+        this.tokenAuthenticationService = tokenAuthenticationService;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -31,26 +38,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http .csrf()
+                .disable()
                 .authorizeRequests()
-                    .antMatchers("/api/add*", "/post").permitAll()
+                    .antMatchers("/api/add*", "/all/*").permitAll()
                     .antMatchers("/api/admin/*").hasRole("ADMIN")
                     .antMatchers("/api/*").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                    .loginPage("/login")
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .permitAll()
-                .and()
-                .logout()
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                    .logoutSuccessUrl("/login?logout")
-                    .permitAll()
-                .and()
-                .csrf()
-                    .disable();
+        .addFilterBefore(new StatelessLoginFilter("/login", tokenAuthenticationService, userRepository),
+                UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(new StatelessAuthenticationFilter(tokenAuthenticationService),
+                UsernamePasswordAuthenticationFilter.class)
+        ;
 
     }
 
@@ -71,7 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
 
-    // TODO: 16.09.16 Disabled - android request problems
+    // TODO: 16.09.16 Disabled for api
     private CsrfTokenRepository csrfTokenRepository() {
         HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
         repository.setSessionAttributeName("_csrf");

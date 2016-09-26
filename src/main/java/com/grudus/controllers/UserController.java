@@ -11,6 +11,7 @@ import com.grudus.repositories.AuthorityRepository;
 import com.grudus.repositories.UserRepository;
 import com.grudus.repositories.WaitingUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,12 +73,13 @@ public class UserController {
 
         if (!principal.getName().equals(user.getUserName()))
             return User.empty();
-
         return user;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/users")
-    public List<User> getAllUsers() {
+    @RequestMapping(method = RequestMethod.GET, value = "/api/admin/users")
+    public List<User> getAllUsers(Authentication authentication) {
+        if (authentication != null)
+            System.err.println(authentication.getClass().getSimpleName() + " -> " + authentication.getDetails());
         return userRepository.findAll();
     }
 
@@ -115,7 +117,7 @@ public class UserController {
 
 
     // TODO: 16.09.16 delete - method checks if android request call was reached
-    @RequestMapping(method = RequestMethod.POST, value = "/post")
+    @RequestMapping(method = RequestMethod.POST, value = "/all/post")
     public String doPost(@RequestParam(name = "username", required = false) String username) {
         System.err.println("in post method");
         System.err.println("username: (" + username + ")");
@@ -137,6 +139,11 @@ public class UserController {
         waitingUserRepository.delete(username);
 
         return username + " was successfully registered";
+    }
+
+    @RequestMapping("/all/hello")
+    public String helloPage() {
+        return "Hello, world!";
     }
 
 
