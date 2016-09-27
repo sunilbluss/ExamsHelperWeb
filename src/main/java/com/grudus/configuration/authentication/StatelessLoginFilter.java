@@ -1,15 +1,12 @@
 package com.grudus.configuration.authentication;
 
-import com.grudus.entities.User;
-import com.grudus.repositories.UserRepository;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.grudus.helpers.exceptions.UserAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,22 +17,41 @@ import java.io.IOException;
 
 public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter {
 
+    private static final String DEFAULT_USERNAME_PARAMETER = "username";
+    private static final String DEFAULT_PASSWORD_PARAMETER = "password";
 
     private final TokenAuthenticationService tokenAuthenticationService;
     private final UserAuthenticationProvider userAuthenticationProvider;
 
+    private String usernameParameter;
+    private String passwordParameter;
+
     public StatelessLoginFilter(String defaultFilterProcessesUrl, TokenAuthenticationService tokenAuthenticationService, UserAuthenticationProvider userAuthenticationProvider) {
+        this(defaultFilterProcessesUrl, tokenAuthenticationService, userAuthenticationProvider, DEFAULT_USERNAME_PARAMETER, DEFAULT_PASSWORD_PARAMETER);
+    }
+
+    public StatelessLoginFilter(String defaultFilterProcessesUrl,
+                                TokenAuthenticationService tokenAuthenticationService,
+                                UserAuthenticationProvider userAuthenticationProvider,
+                                String usernameParameter,
+                                String passwordParameter) {
         super(defaultFilterProcessesUrl);
         this.tokenAuthenticationService = tokenAuthenticationService;
         this.userAuthenticationProvider = userAuthenticationProvider;
+        this.usernameParameter = usernameParameter;
+        this.passwordParameter = passwordParameter;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        String userName = request.getParameter("username");
-        String password = request.getParameter("password");
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException, IOException, ServletException {
+        if (!request.getMethod().equalsIgnoreCase(RequestMethod.POST.toString()))
+            throw new UserAuthenticationException("Request must be a POST method!");
 
-        return userAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+        String username = request.getParameter(usernameParameter);
+        String password = request.getParameter(passwordParameter);
+
+        return userAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
     }
 

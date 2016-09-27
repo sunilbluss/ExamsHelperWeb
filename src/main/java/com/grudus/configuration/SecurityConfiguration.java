@@ -22,17 +22,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final DataSource dataSource;
     private final TokenAuthenticationService tokenAuthenticationService;
-    private final UserRepository userRepository;
     private final UserAuthenticationProvider userAuthenticationProvider;
     private final PasswordEncoder passwordEncoder;
 
 
 
     @Autowired
-    public SecurityConfiguration(DataSource dataSource, TokenAuthenticationService tokenAuthenticationService, UserRepository userRepository, UserAuthenticationProvider userAuthenticationProvider, PasswordEncoder passwordEncoder) {
+    public SecurityConfiguration(DataSource dataSource, TokenAuthenticationService tokenAuthenticationService, UserAuthenticationProvider userAuthenticationProvider, PasswordEncoder passwordEncoder) {
         this.dataSource = dataSource;
         this.tokenAuthenticationService = tokenAuthenticationService;
-        this.userRepository = userRepository;
         this.userAuthenticationProvider = userAuthenticationProvider;
         this.passwordEncoder = passwordEncoder;
     }

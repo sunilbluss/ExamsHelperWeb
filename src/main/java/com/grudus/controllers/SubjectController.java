@@ -21,13 +21,6 @@ public class SubjectController {
         this.userRepository = userRepository;
     }
 
-    @RequestMapping("/api/admin/subjects")
-    public List<Subject> getAllSubjects(@RequestParam(name = "user", required = false) String userName) {
-        if (userName != null)
-            return subjectRepository.findByUser(userRepository.findByUserName(userName).orElse(User.empty()));
-        return subjectRepository.findAll();
-    }
-
 
     @RequestMapping(value = "/api/user/{userName}/subjects/add", method = RequestMethod.POST)
     public void addSubject(@PathVariable("userName") String userName,

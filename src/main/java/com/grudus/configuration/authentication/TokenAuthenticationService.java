@@ -3,7 +3,6 @@ package com.grudus.configuration.authentication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.grudus.entities.User;
 import com.grudus.helpers.exceptions.UserAuthenticationException;
-import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,12 +18,11 @@ import java.io.UnsupportedEncodingException;
 public class TokenAuthenticationService {
 
     private static final String AUTH_HEADER_NAME = "X-AUTH-TOKEN";
-
     private final TokenHandler tokenHandler;
 
 
     @Autowired
-    public TokenAuthenticationService(@Value("${token.secret}") String secretToken, UserRepository userRepository) {
+    public TokenAuthenticationService(@Value("${token.secret}") String secretToken) {
         tokenHandler = new TokenHandler(DatatypeConverter.parseBase64Binary(secretToken));
     }
 
