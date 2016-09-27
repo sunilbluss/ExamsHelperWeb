@@ -43,6 +43,9 @@ public class User {
     @JsonIgnore
     private List<Subject> subjectList;
 
+    @Transient
+    private boolean empty;
+
     public User() {}
 
     public User(String userName, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList) {

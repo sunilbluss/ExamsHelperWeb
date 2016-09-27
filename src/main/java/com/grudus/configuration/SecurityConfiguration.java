@@ -1,16 +1,19 @@
 package com.grudus.configuration;
 
+import com.grudus.configuration.authentication.StatelessAuthenticationFilter;
+import com.grudus.configuration.authentication.StatelessLoginFilter;
+import com.grudus.configuration.authentication.TokenAuthenticationService;
+import com.grudus.configuration.authentication.UserAuthenticationProvider;
+import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.sql.DataSource;
 
@@ -18,48 +21,45 @@ import javax.sql.DataSource;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final DataSource dataSource;
+    private final TokenAuthenticationService tokenAuthenticationService;
+    private final UserAuthenticationProvider userAuthenticationProvider;
+    private final PasswordEncoder passwordEncoder;
+
+
 
     @Autowired
-    public SecurityConfiguration(DataSource dataSource) {
+    public SecurityConfiguration(DataSource dataSource, TokenAuthenticationService tokenAuthenticationService, UserAuthenticationProvider userAuthenticationProvider, PasswordEncoder passwordEncoder) {
         this.dataSource = dataSource;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+        this.tokenAuthenticationService = tokenAuthenticationService;
+        this.userAuthenticationProvider = userAuthenticationProvider;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http .csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/api/add*", "/post").permitAll()
-                    .antMatchers("/api/admin/*").hasRole("ADMIN")
-                    .antMatchers("/api/*").hasAnyRole("USER", "ADMIN")
-                    .anyRequest().authenticated()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("api/user/**").hasAnyRole("ADMIN", "USER")
+                .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                    .loginPage("/login")
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .permitAll()
-                .and()
-                .logout()
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                    .logoutSuccessUrl("/login?logout")
-                    .permitAll()
-                .and()
-                .csrf()
-                    .disable();
+        .addFilterBefore(new StatelessLoginFilter("/login", tokenAuthenticationService, userAuthenticationProvider),
+                UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(new StatelessAuthenticationFilter(tokenAuthenticationService),
+                UsernamePasswordAuthenticationFilter.class)
+        ;
 
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
+                .authenticationProvider(userAuthenticationProvider);
+        auth
                 .jdbcAuthentication()
                 .dataSource(dataSource)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
 
         // TODO: 12.09.16 debug only --------------
         auth
@@ -71,7 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
 
-    // TODO: 16.09.16 Disabled - android request problems
+    // TODO: 16.09.16 Disabled for api
     private CsrfTokenRepository csrfTokenRepository() {
         HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
         repository.setSessionAttributeName("_csrf");

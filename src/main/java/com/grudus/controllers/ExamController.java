@@ -15,6 +15,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/api/user")
 public class ExamController {
 
     private final UserRepository userRepository;
@@ -28,7 +29,7 @@ public class ExamController {
         this.subjectRepository = subjectRepository;
     }
 
-    @RequestMapping("/api/user/{userName}/exams")
+    @RequestMapping("/{userName}/exams")
     public List<Exam> getAllUserExams(@PathVariable("userName") String userName, Principal principal) {
         User user = userRepository.findByUserName(userName).orElse(User.empty());
 
@@ -39,7 +40,7 @@ public class ExamController {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/user/{userName}/exams/add")
+    @RequestMapping(method = RequestMethod.POST, value = "/{userName}/exams/add")
     public void addExam(@PathVariable("userName") String userName,
                         @RequestParam("subject") long subjectID,
                         @RequestParam("info") String examInfo,

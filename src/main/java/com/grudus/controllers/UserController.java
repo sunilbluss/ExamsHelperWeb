@@ -11,11 +11,13 @@ import com.grudus.repositories.AuthorityRepository;
 import com.grudus.repositories.UserRepository;
 import com.grudus.repositories.WaitingUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.Calendar;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -41,15 +44,16 @@ public class UserController {
         this.emailSender = emailSender;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/user/{username}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
     public User getUser(@PathVariable("username") String userName, Principal principal) {
-        if (principal == null || !principal.getName().equals(userName))
+        if (principal == null || !principal.getName().equals(userName)) {
             return User.empty();
+        }
 
         return userRepository.findByUserName(userName).orElse(User.empty());
     }
 
-    @RequestMapping(value = "/api/user")
+    @RequestMapping
     public User getUser(@RequestParam(name = "username", required = false) String userName,
                         @RequestParam(name = "id", required = false) String id,
                         Principal principal) {
@@ -72,24 +76,12 @@ public class UserController {
 
         if (!principal.getName().equals(user.getUserName()))
             return User.empty();
-
         return user;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @RequestMapping("/api/admin/deleteAll")
-    public String deleteAll() {
-        authorityRepository.deleteAll();
-        userRepository.deleteAll();
-        return "All records were deleted "  + userRepository.count();
-    }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/add")
+    @RequestMapping(method = RequestMethod.POST, value = "/add")
     public void addUserToWaitingRoom(@RequestParam("username") String userName, @RequestParam("password") String password,
                                      @RequestParam("email") String email) {
 
@@ -114,16 +106,7 @@ public class UserController {
     }
 
 
-    // TODO: 16.09.16 delete - method checks if android request call was reached
-    @RequestMapping(method = RequestMethod.POST, value = "/post")
-    public String doPost(@RequestParam(name = "username", required = false) String username) {
-        System.err.println("in post method");
-        System.err.println("username: (" + username + ")");
-
-        return "after post";
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/add/{username}/{key}")
+    @RequestMapping(method = RequestMethod.GET, value = "/add/{username}/{key}")
     public String addUser(@PathVariable("username") String username, @PathVariable("key") String key) {
 
         WaitingUser user = waitingUserRepository.findByKey(key)
@@ -138,7 +121,5 @@ public class UserController {
 
         return username + " was successfully registered";
     }
-
-
 
 }
