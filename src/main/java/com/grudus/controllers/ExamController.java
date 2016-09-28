@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
+// TODO: 28.09.16 delete username from url
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/user/{username}/exams")
 public class ExamController {
 
     private final UserRepository userRepository;
@@ -29,7 +30,7 @@ public class ExamController {
         this.subjectRepository = subjectRepository;
     }
 
-    @RequestMapping("/{username}/exams")
+    @RequestMapping(method = RequestMethod.GET)
     public List<Exam> getAllUserExams(@PathVariable("username") String username, Principal principal) {
         User user = userRepository.findByUsername(username).orElse(User.empty());
 
@@ -39,26 +40,65 @@ public class ExamController {
         return examsRepository.findByUser(user);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE)
+    public void deleteAllUserExams(@PathVariable("username") String username, Principal principal) {
+        if (principal == null || !principal.getName().equals(username))
+            return;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{username}/exams/add")
+        userRepository.findByUsername(username)
+                .orElse(User.empty())
+                .getExams()
+                .stream()
+                .map(Exam::getId)
+                .forEach(examsRepository::delete);
+    }
+
+
+    @RequestMapping(method = RequestMethod.POST)
     public void addExam(@PathVariable("username") String username,
                         @RequestParam("subject") long subjectID,
                         @RequestParam("info") String examInfo,
                         @RequestParam("date") String date,
                         Principal principal) {
 
-        User user = userRepository.findByUsername(username).orElse(User.empty());
 
-        if (user.isEmpty() || principal == null || !principal.getName().equals(user.getUsername()))
-            throw new AccessException("Cannot access this page");
+        if (principal == null || !principal.getName().equals(username))
+            return;
 
         if (subjectRepository.findOne(subjectID) == null)
             throw new NullPointerException("Subject with id " + subjectID + " doesn't exist");
 
+
         examsRepository.save(new Exam(examInfo,
                 DateHelper.tryToGetDateFromString(date),
-                user,
+                userRepository.findByUsername(username).get(),
                 subjectRepository.findOne(subjectID)));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    public Exam getExam(@PathVariable("username") String username,
+                        @PathVariable("id") Long id,
+                        Principal principal) {
+        if (principal == null || !principal.getName().equals(username))
+            return null;
+
+        return userRepository.findByUsername(username)
+                .orElse(User.empty())
+                .getExams()
+                .stream()
+                .filter(exam ->  exam.getId() == id)
+                .findAny()
+                .orElse(null);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    public void deleteExam(@PathVariable("username") String username,
+                           @PathVariable("id") Long id,
+                           Principal principal) {
+        if (principal == null || !principal.getName().equals(username))
+            return;
+
+        examsRepository.delete(id);
     }
 
 }

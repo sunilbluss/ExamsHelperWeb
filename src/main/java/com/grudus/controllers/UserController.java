@@ -47,32 +47,35 @@ public class UserController {
         return userRepository.findByUsername(username).orElse(User.empty());
     }
 
-    @RequestMapping
-    public User getUser(@RequestParam(name = "username", required = false) String username,
-                        @RequestParam(name = "id", required = false) String id,
-                        Principal principal) {
-        if (username == null && id == null)
-            return User.empty();
+    @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
+    public void editUser(@PathVariable("username") String username,
+                         @RequestParam("username") String newUsername,
+                         @RequestParam("password") String password,
+                         @RequestParam("email") String email,
+                         Principal principal) {
+        if (principal == null || !principal.getName().equals(username))
+            return;
 
-        if (!id.matches("\\d+"))
-            return User.empty();
+        User user = userRepository.findByUsername(username).orElse(User.empty());
 
-        User user;
+        if (user.isEmpty())
+            return;
 
-        if (username == null) {
-            user = userRepository.findOne(Long.valueOf(id));
-            if (user == null)
-                user = User.empty();
-        }
+        user.setUsername(newUsername);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
 
-        else
-            user = userRepository.findByUsername(username).orElse(User.empty());
-
-        if (!principal.getName().equals(user.getUsername()))
-            return User.empty();
-        return user;
+        userRepository.save(user);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{username}")
+    public void deleteUser(@PathVariable("username") String username,
+                           Principal principal) {
+        if (principal == null || !principal.getName().equals(username))
+            return;
+
+        userRepository.delete(userRepository.findByUsername(username).orElse(User.empty()));
+    }
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
