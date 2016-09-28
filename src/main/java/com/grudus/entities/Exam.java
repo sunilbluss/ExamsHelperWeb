@@ -86,7 +86,7 @@ public class Exam {
                 ", subject=" + subject.getTitle() +
                 ", examInfo='" + examInfo + '\'' +
                 ", date=" + date +
-                ", user=" + user.getUserName() +
+                ", user=" + user.getUsername() +
                 '}';
     }
 }

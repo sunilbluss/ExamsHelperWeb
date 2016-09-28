@@ -29,27 +29,27 @@ public class ExamController {
         this.subjectRepository = subjectRepository;
     }
 
-    @RequestMapping("/{userName}/exams")
-    public List<Exam> getAllUserExams(@PathVariable("userName") String userName, Principal principal) {
-        User user = userRepository.findByUserName(userName).orElse(User.empty());
+    @RequestMapping("/{username}/exams")
+    public List<Exam> getAllUserExams(@PathVariable("username") String username, Principal principal) {
+        User user = userRepository.findByUsername(username).orElse(User.empty());
 
-        if (principal == null || user.isEmpty() || !(user.getUserName().equals(principal.getName()) || principal.getName().equals("admin")))
+        if (principal == null || user.isEmpty() || !(user.getUsername().equals(principal.getName()) || principal.getName().equals("admin")))
             throw new AccessException("You can't see this page");
 
         return examsRepository.findByUser(user);
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{userName}/exams/add")
-    public void addExam(@PathVariable("userName") String userName,
+    @RequestMapping(method = RequestMethod.POST, value = "/{username}/exams/add")
+    public void addExam(@PathVariable("username") String username,
                         @RequestParam("subject") long subjectID,
                         @RequestParam("info") String examInfo,
                         @RequestParam("date") String date,
                         Principal principal) {
 
-        User user = userRepository.findByUserName(userName).orElse(User.empty());
+        User user = userRepository.findByUsername(username).orElse(User.empty());
 
-        if (user.isEmpty() || principal == null || !principal.getName().equals(user.getUserName()))
+        if (user.isEmpty() || principal == null || !principal.getName().equals(user.getUsername()))
             throw new AccessException("Cannot access this page");
 
         if (subjectRepository.findOne(subjectID) == null)

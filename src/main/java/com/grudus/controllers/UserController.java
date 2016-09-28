@@ -11,19 +11,13 @@ import com.grudus.repositories.AuthorityRepository;
 import com.grudus.repositories.UserRepository;
 import com.grudus.repositories.WaitingUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
@@ -45,19 +39,19 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{username}")
-    public User getUser(@PathVariable("username") String userName, Principal principal) {
-        if (principal == null || !principal.getName().equals(userName)) {
+    public User getUser(@PathVariable("username") String username, Principal principal) {
+        if (principal == null || !principal.getName().equals(username)) {
             return User.empty();
         }
 
-        return userRepository.findByUserName(userName).orElse(User.empty());
+        return userRepository.findByUsername(username).orElse(User.empty());
     }
 
     @RequestMapping
-    public User getUser(@RequestParam(name = "username", required = false) String userName,
+    public User getUser(@RequestParam(name = "username", required = false) String username,
                         @RequestParam(name = "id", required = false) String id,
                         Principal principal) {
-        if (userName == null && id == null)
+        if (username == null && id == null)
             return User.empty();
 
         if (!id.matches("\\d+"))
@@ -65,16 +59,16 @@ public class UserController {
 
         User user;
 
-        if (userName == null) {
+        if (username == null) {
             user = userRepository.findOne(Long.valueOf(id));
             if (user == null)
                 user = User.empty();
         }
 
         else
-            user = userRepository.findByUserName(userName).orElse(User.empty());
+            user = userRepository.findByUsername(username).orElse(User.empty());
 
-        if (!principal.getName().equals(user.getUserName()))
+        if (!principal.getName().equals(user.getUsername()))
             return User.empty();
         return user;
     }
@@ -82,7 +76,7 @@ public class UserController {
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
-    public void addUserToWaitingRoom(@RequestParam("username") String userName, @RequestParam("password") String password,
+    public void addUserToWaitingRoom(@RequestParam("username") String username, @RequestParam("password") String password,
                                      @RequestParam("email") String email) {
 
 
@@ -90,19 +84,19 @@ public class UserController {
 
         UserValidator validator = new UserValidator(userRepository);
 
-        validator.validateInputs(userName, password, email, registerDate);
+        validator.validateInputs(username, password, email, registerDate);
 
-        if (validator.userExist(userName))
+        if (validator.userExist(username))
             throw new NewUserException("User exist");
 
         String key = "";
         try {
-            key = emailSender.sendKeyMessageAndGetKey(userName, email);
+            key = emailSender.sendKeyMessageAndGetKey(username, email);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
 
-        waitingUserRepository.save(new WaitingUser(userName, passwordEncoder.encode(password), email, key));
+        waitingUserRepository.save(new WaitingUser(username, passwordEncoder.encode(password), email, key));
     }
 
 
@@ -112,7 +106,7 @@ public class UserController {
         WaitingUser user = waitingUserRepository.findByKey(key)
                 .orElseThrow(() -> new NewUserException("You are not a waiting user!"));
 
-        if (!user.getUserName().equals(username))
+        if (!user.getUsername().equals(username))
             throw new NewUserException("Your username isn't correct!");
 
         userRepository.save(new User(username, user.getPassword(), user.getEmail(), user.getDate()));

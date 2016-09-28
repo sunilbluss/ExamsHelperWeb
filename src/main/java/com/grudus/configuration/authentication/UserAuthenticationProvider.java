@@ -25,15 +25,15 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        final String userName = authentication.getName();
+        final String username = authentication.getName();
         Object credentials = authentication.getCredentials();
 
-        if (userName == null || credentials == null)
+        if (username == null || credentials == null)
             throw new UserAuthenticationException("Username or password is null");
 
         final String password = (authentication.getCredentials().toString().trim());
-        final User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new UserAuthenticationException("Cannot find user: " + userName));
+        final User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserAuthenticationException("Cannot find user: " + username));
 
         if (!encoder.matches(password, user.getPassword()))
             throw new UserAuthenticationException("Passwords are not equals");

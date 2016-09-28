@@ -31,9 +31,9 @@ public class AdminController {
     }
 
     @RequestMapping("/subjects")
-    public List<Subject> getAllSubjects(@RequestParam(name = "user", required = false) String userName) {
-        if (userName != null)
-            return subjectRepository.findByUser(userRepository.findByUserName(userName).orElse(User.empty()));
+    public List<Subject> getAllSubjects(@RequestParam(name = "user", required = false) String username) {
+        if (username != null)
+            return subjectRepository.findByUser(userRepository.findByUsername(username).orElse(User.empty()));
         return subjectRepository.findAll();
     }
 

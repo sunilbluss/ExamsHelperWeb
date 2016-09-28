@@ -11,7 +11,7 @@ public class WaitingUser {
 
     @Id
     @Column(name = "username", unique = true, nullable = false, length = 32)
-    private String userName;
+    private String username;
 
     @Column(name = "password", length = 64)
     private String password;
@@ -28,8 +28,8 @@ public class WaitingUser {
     public WaitingUser() {
     }
 
-    public WaitingUser(String userName, String password, String email, String key) {
-        this.userName = userName;
+    public WaitingUser(String username, String password, String email, String key) {
+        this.username = username;
         this.password = password;
         this.email = email;
         this.key = key;
@@ -44,12 +44,12 @@ public class WaitingUser {
         this.date = date;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -79,7 +79,7 @@ public class WaitingUser {
     @Override
     public String toString() {
         return "WaitingUser{" +
-                "userName='" + userName + '\'' +
+                "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", key='" + key + '\'' +

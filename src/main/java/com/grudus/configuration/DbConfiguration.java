@@ -9,7 +9,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 public class DbConfiguration {
 
     @Value("${spring.datasource.username}")
-    private String userName;
+    private String username;
 
     @Value("${spring.datasource.password}")
     private String password;
@@ -25,7 +25,7 @@ public class DbConfiguration {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
         driverManagerDataSource.setDriverClassName(driverClassName);
         driverManagerDataSource.setUrl(databaseUrl);
-        driverManagerDataSource.setUsername(userName);
+        driverManagerDataSource.setUsername(username);
         driverManagerDataSource.setPassword(password);
         return driverManagerDataSource;
     }

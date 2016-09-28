@@ -16,7 +16,7 @@ public class UserAuthenticationToken extends UsernamePasswordAuthenticationToken
     }
 
     public UserAuthenticationToken(User user, Collection<? extends GrantedAuthority> authorities) {
-        super(user.getUserName(), user.getPassword(), authorities);
+        super(user.getUsername(), user.getPassword(), authorities);
         this.user = user;
     }
 
@@ -26,7 +26,7 @@ public class UserAuthenticationToken extends UsernamePasswordAuthenticationToken
 
     @Override
     public Object getPrincipal() {
-        return this.user.getUserName();
+        return this.user.getUsername();
     }
 
     @Override

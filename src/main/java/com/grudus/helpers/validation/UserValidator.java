@@ -15,9 +15,9 @@ public class UserValidator {
         this.userRepository = userRepository;
     }
 
-    public void validateInputs(String userName, String password, String email, Date date) {
-        if (!StringValidator.userNameIsCorrect(userName))
-            throw new NewUserException("username: " + userName + " isn't correct");
+    public void validateInputs(String username, String password, String email, Date date) {
+        if (!StringValidator.usernameIsCorrect(username))
+            throw new NewUserException("username: " + username + " isn't correct");
 
         if (!StringValidator.emailIsCorrect(email))
             throw new NewUserException("Email: " + email + " isn't correc");
@@ -30,11 +30,11 @@ public class UserValidator {
     }
 
     public boolean userExist(User user) {
-        return userExist(user.getUserName());
+        return userExist(user.getUsername());
     }
 
-    public boolean userExist(String userName) {
-        return userRepository.findByUserName(userName).isPresent();
+    public boolean userExist(String username) {
+        return userRepository.findByUsername(username).isPresent();
     }
 
 

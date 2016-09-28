@@ -7,8 +7,8 @@ import java.util.Date;
 
 public class StringValidator {
 
-    public static boolean userNameIsCorrect(String userName) {
-        return userName.trim().length() > 0 && userName.indexOf(';') < 0;
+    public static boolean usernameIsCorrect(String username) {
+        return username.trim().length() > 0 && username.indexOf(';') < 0;
     }
 
     public static boolean passwordIsCorrect(String password) {

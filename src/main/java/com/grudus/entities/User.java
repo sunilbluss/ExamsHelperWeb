@@ -20,7 +20,7 @@ public class User {
     private long id;
 
     @Column(length = 32, nullable = false, name = "username")
-    private String userName;
+    private String username;
 
     @Column(length = 64, name = "password")
     @JsonIgnore
@@ -48,8 +48,8 @@ public class User {
 
     public User() {}
 
-    public User(String userName, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList) {
-        this.userName = userName;
+    public User(String username, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList) {
+        this.username = username;
         this.password = password;
         this.email = email;
         this.date = date;
@@ -58,8 +58,8 @@ public class User {
         this.enabled = true;
     }
 
-    public User(String userName, String password, String email, Date date) {
-        this(userName, password, email, date, new ArrayList<>(0), new ArrayList<>(0));
+    public User(String username, String password, String email, Date date) {
+        this(username, password, email, date, new ArrayList<>(0), new ArrayList<>(0));
     }
 
     public boolean isEnabled() {
@@ -91,7 +91,7 @@ public class User {
     }
 
     public boolean isEmpty() {
-        return userName == null;
+        return username == null;
     }
 
     public long getId() {
@@ -102,12 +102,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -138,7 +138,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userName='" + userName + '\'' +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", date=" + date +

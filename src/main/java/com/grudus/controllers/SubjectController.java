@@ -7,8 +7,6 @@ import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class SubjectController {
 
@@ -22,13 +20,13 @@ public class SubjectController {
     }
 
 
-    @RequestMapping(value = "/api/user/{userName}/subjects/add", method = RequestMethod.POST)
-    public void addSubject(@PathVariable("userName") String userName,
+    @RequestMapping(value = "/api/user/{username}/subjects/add", method = RequestMethod.POST)
+    public void addSubject(@PathVariable("username") String username,
                            @RequestParam("subject") String subjectTitle,
                            @RequestParam("color") String color) {
 
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new NullPointerException("Cannot find the user " + userName));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NullPointerException("Cannot find the user " + username));
 
         if (user.getSubjectList()
                 .stream()
@@ -41,8 +39,8 @@ public class SubjectController {
     }
 
     @RequestMapping("/api/user/{username}/subjects/deleteAll")
-    public void deleteAllSubjects(@PathVariable("username") String userName) {
-        User user = userRepository.findByUserName(userName).orElseThrow(() -> new NullPointerException("Cannot find the user " + userName));
+    public void deleteAllSubjects(@PathVariable("username") String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new NullPointerException("Cannot find the user " + username));
 
         user.getSubjectList()
                 .stream()

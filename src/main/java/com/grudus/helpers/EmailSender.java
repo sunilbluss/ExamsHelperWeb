@@ -38,7 +38,7 @@ public class EmailSender {
 
     public void send(final String message, final String emailRecipient) throws MessagingException {
         mimeMessage = new MimeMessage(session);
-        mimeMessage.setFrom(new InternetAddress(mailProperties.getUserName()));
+        mimeMessage.setFrom(new InternetAddress(mailProperties.getUsername()));
         mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(emailRecipient));
         mimeMessage.setSubject(mailProperties.getMessageSubject());
         mimeMessage.setText(message);
@@ -47,11 +47,11 @@ public class EmailSender {
         System.out.println("Sent message successfully...");
     }
 
-    public String sendKeyMessageAndGetKey(String userName, String emailRecipient) throws MessagingException {
+    public String sendKeyMessageAndGetKey(String username, String emailRecipient) throws MessagingException {
         String key = generator.nextSessionId();
         String message = new MessageBuilder()
                 .setKey(key)
-                .setUserName(userName)
+                .setUserName(username)
                 .build();
 
         send(message, emailRecipient);
@@ -65,7 +65,7 @@ public class EmailSender {
 
         @Override
         public PasswordAuthentication getPasswordAuthentication() {
-            String username = mailProperties.getUserName();
+            String username = mailProperties.getUsername();
             String password = mailProperties.getPassword();
             return new PasswordAuthentication(username, password);
         }
@@ -73,11 +73,11 @@ public class EmailSender {
 
 
     private class MessageBuilder {
-        private String userName;
+        private String username;
         private String key;
 
-        public MessageBuilder setUserName(String userName) {
-            this.userName = userName;
+        public MessageBuilder setUserName(String username) {
+            this.username = username;
             return this;
         }
 
@@ -87,12 +87,12 @@ public class EmailSender {
         }
 
         private String build() {
-            if (userName == null || key == null)
+            if (username == null || key == null)
                 throw new NullPointerException("Username and key cannot be null");
 
             return String.format(mailProperties.getMessage(),
-                    userName,
-                    userName,
+                    username,
+                    username,
                     key);
         }
     }

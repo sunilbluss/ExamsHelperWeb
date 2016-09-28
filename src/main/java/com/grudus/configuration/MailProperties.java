@@ -1,7 +1,6 @@
 package com.grudus.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
@@ -16,7 +15,7 @@ public class MailProperties {
     private int port;
 
     @Value("${mail.user}")
-    private String userName;
+    private String username;
 
     @Value("${mail.password}")
     private String password;
@@ -51,12 +50,12 @@ public class MailProperties {
         this.port = port;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
