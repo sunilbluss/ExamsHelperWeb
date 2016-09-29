@@ -17,7 +17,7 @@ public class DateValidator {
 
     public static boolean dateIsCorrect(Date date) {
         return date.getTime() > MINIMAL_DATE.getTime()
-                && date.getTime() < Calendar.getInstance().getTimeInMillis();
+                && (date.getTime() - 1000) < Calendar.getInstance().getTimeInMillis();
     }
 
 }

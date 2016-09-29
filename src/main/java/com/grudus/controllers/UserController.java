@@ -1,16 +1,16 @@
 package com.grudus.controllers;
 
-import com.grudus.entities.Authority;
 import com.grudus.entities.Role;
 import com.grudus.entities.User;
 import com.grudus.entities.WaitingUser;
 import com.grudus.helpers.EmailSender;
 import com.grudus.helpers.exceptions.NewUserException;
+import com.grudus.helpers.exceptions.UserAuthenticationException;
 import com.grudus.helpers.validation.UserValidator;
-import com.grudus.repositories.AuthorityRepository;
 import com.grudus.repositories.UserRepository;
 import com.grudus.repositories.WaitingUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +26,13 @@ public class UserController {
     private final UserRepository userRepository;
     private final WaitingUserRepository waitingUserRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthorityRepository authorityRepository;
     private final EmailSender emailSender;
 
     @Autowired
-    public UserController(UserRepository userRepository, WaitingUserRepository waitingUserRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, EmailSender emailSender) {
+    public UserController(UserRepository userRepository, WaitingUserRepository waitingUserRepository, PasswordEncoder passwordEncoder, EmailSender emailSender) {
         this.userRepository = userRepository;
         this.waitingUserRepository = waitingUserRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authorityRepository = authorityRepository;
         this.emailSender = emailSender;
     }
 
@@ -54,12 +52,12 @@ public class UserController {
                          @RequestParam("email") String email,
                          Principal principal) {
         if (principal == null || !principal.getName().equals(username))
-            return;
+            throw new UserAuthenticationException("You aren't a principal!");
 
         User user = userRepository.findByUsername(username).orElse(User.empty());
 
         if (user.isEmpty())
-            return;
+            throw new UserAuthenticationException("User is empty!");
 
         user.setUsername(newUsername);
         user.setPassword(passwordEncoder.encode(password));
@@ -72,14 +70,19 @@ public class UserController {
     public void deleteUser(@PathVariable("username") String username,
                            Principal principal) {
         if (principal == null || !principal.getName().equals(username))
-            return;
+            throw new UserAuthenticationException("You are not the principal!");
 
-        userRepository.delete(userRepository.findByUsername(username).orElse(User.empty()));
+        User user = userRepository.findByUsername(username).orElse(User.empty());
+
+        System.err.println("delete user: " + user);
+
+        userRepository.delete(user.getId());
     }
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
-    public void addUserToWaitingRoom(@RequestParam("username") String username, @RequestParam("password") String password,
+    public void addUserToWaitingRoom(@RequestParam("username") String username,
+                                     @RequestParam("password") String password,
                                      @RequestParam("email") String email) {
 
 
@@ -112,11 +115,10 @@ public class UserController {
         if (!user.getUsername().equals(username))
             throw new NewUserException("Your username isn't correct!");
 
-        userRepository.save(new User(username, user.getPassword(), user.getEmail(), user.getDate()));
-        authorityRepository.save(new Authority(username, Role.ROLE_USER));
+        userRepository.save(new User(username, user.getPassword(), user.getEmail(), user.getDate(), Role.ROLE_USER));
         waitingUserRepository.delete(username);
 
         return username + " was successfully registered";
     }
-
 }
+

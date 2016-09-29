@@ -2,7 +2,6 @@ package com.grudus.controllers;
 
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
-import com.grudus.repositories.AuthorityRepository;
 import com.grudus.repositories.SubjectRepository;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +19,11 @@ public class AdminController {
 
 
     private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
     private final SubjectRepository subjectRepository;
 
     @Autowired
-    public AdminController(UserRepository userRepository, AuthorityRepository authorityRepository, SubjectRepository subjectRepository) {
+    public AdminController(UserRepository userRepository, SubjectRepository subjectRepository) {
         this.userRepository = userRepository;
-        this.authorityRepository = authorityRepository;
         this.subjectRepository = subjectRepository;
     }
 
@@ -44,7 +41,6 @@ public class AdminController {
 
     @RequestMapping("/deleteAll")
     public String deleteAll() {
-        authorityRepository.deleteAll();
         userRepository.deleteAll();
         return "All records were deleted "  + userRepository.count();
     }

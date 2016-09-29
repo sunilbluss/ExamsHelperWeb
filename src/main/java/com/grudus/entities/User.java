@@ -12,7 +12,7 @@ import java.util.List;
 @Entity(name = "users")
 public class User {
 
-    private static final User EMPTY = new User(null, null, null, null, null, null);
+    private static final User EMPTY = new User("", "", "", null, Role.ROLE_ANONYMOUS);
 
     @Column(name = "id")
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -43,12 +43,20 @@ public class User {
     @JsonIgnore
     private List<Subject> subjectList;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "authority", nullable = false, length = 64)
+    private Role role;
+
+    @Column(length = 170)
+    @JsonIgnore
+    private String token;
+
     @Transient
     private boolean empty;
 
     public User() {}
 
-    public User(String username, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList) {
+    public User(String username, String password, String email, Date date, Collection<Exam> exams, List<Subject> subjectList, Role role) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -56,10 +64,11 @@ public class User {
         this.exams = exams;
         this.subjectList = subjectList;
         this.enabled = true;
+        this.role = role;
     }
 
-    public User(String username, String password, String email, Date date) {
-        this(username, password, email, date, new ArrayList<>(0), new ArrayList<>(0));
+    public User(String username, String password, String email, Date date, Role role) {
+        this(username, password, email, date, new ArrayList<>(0), new ArrayList<>(0), role);
     }
 
     public boolean isEnabled() {
@@ -145,4 +154,11 @@ public class User {
                 '}';
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
