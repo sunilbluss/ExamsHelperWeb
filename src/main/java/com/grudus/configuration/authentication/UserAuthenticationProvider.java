@@ -39,7 +39,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
             throw new UserAuthenticationException("Passwords are not equals");
 
         // TODO: 26.09.16 get authentication from user
-        return new UserAuthenticationToken(user, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        return new UserAuthenticationToken(user);
     }
 
     @Override

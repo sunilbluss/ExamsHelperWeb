@@ -4,6 +4,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 public class UserAuthenticationException extends BadCredentialsException {
 
+    public UserAuthenticationException() {
+        super("Access Denied");
+    }
+
     public UserAuthenticationException(String message) {
         super(message);
     }

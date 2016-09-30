@@ -1,16 +1,18 @@
 package com.grudus.controllers;
 
+import com.grudus.configuration.authentication.UserAuthenticationToken;
 import com.grudus.entities.Role;
 import com.grudus.entities.User;
 import com.grudus.entities.WaitingUser;
+import com.grudus.helpers.AuthenticationHelper;
 import com.grudus.helpers.EmailSender;
 import com.grudus.helpers.exceptions.NewUserException;
 import com.grudus.helpers.exceptions.UserAuthenticationException;
+import com.grudus.helpers.exceptions.UserNotFoundException;
 import com.grudus.helpers.validation.UserValidator;
 import com.grudus.repositories.UserRepository;
 import com.grudus.repositories.WaitingUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,8 @@ import javax.mail.MessagingException;
 import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.grudus.helpers.AuthenticationHelper.checkAuthority;
 
 @RestController
 @RequestMapping("/api/user")
@@ -36,13 +40,14 @@ public class UserController {
         this.emailSender = emailSender;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
-    public User getUser(@PathVariable("username") String username, Principal principal) {
-        if (principal == null || !principal.getName().equals(username)) {
-            return User.empty();
-        }
 
-        return userRepository.findByUsername(username).orElse(User.empty());
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
+    public User getUser(@PathVariable("username") String username, UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
@@ -50,14 +55,11 @@ public class UserController {
                          @RequestParam("username") String newUsername,
                          @RequestParam("password") String password,
                          @RequestParam("email") String email,
-                         Principal principal) {
-        if (principal == null || !principal.getName().equals(username))
-            throw new UserAuthenticationException("You aren't a principal!");
+                         UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
 
-        User user = userRepository.findByUsername(username).orElse(User.empty());
-
-        if (user.isEmpty())
-            throw new UserAuthenticationException("User is empty!");
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
 
         user.setUsername(newUsername);
         user.setPassword(passwordEncoder.encode(password));
@@ -68,15 +70,11 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{username}")
     public void deleteUser(@PathVariable("username") String username,
-                           Principal principal) {
-        if (principal == null || !principal.getName().equals(username))
-            throw new UserAuthenticationException("You are not the principal!");
+                           UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
 
-        User user = userRepository.findByUsername(username).orElse(User.empty());
-
-        System.err.println("delete user: " + user);
-
-        userRepository.delete(user.getId());
+        userRepository.delete(userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new));
     }
 
 
