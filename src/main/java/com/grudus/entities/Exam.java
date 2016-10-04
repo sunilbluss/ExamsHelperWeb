@@ -6,13 +6,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity(name = "exams")
+@Entity
+@Table(name = "exams")
 public class Exam {
 
     @GeneratedValue
     @Id
     @Column
     private long id;
+
+    @Column(name = "android_id")
+    private Long androidId;
 
     @Column(length = 128, name = "info")
     private String examInfo;
@@ -79,14 +83,23 @@ public class Exam {
         this.date = date;
     }
 
+    public Long getAndroidId() {
+        return androidId;
+    }
+
+    public void setAndroidId(Long androidId) {
+        this.androidId = androidId;
+    }
+
     @Override
     public String toString() {
         return "Exam{" +
                 "id=" + id +
-                ", subject=" + subject.getTitle() +
+                ", androidId=" + androidId +
                 ", examInfo='" + examInfo + '\'' +
                 ", date=" + date +
-                ", user=" + user.getUsername() +
+                ", user=" + user +
+                ", subject=" + subject +
                 '}';
     }
 }

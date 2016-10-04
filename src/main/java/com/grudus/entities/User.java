@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class User {
 
     private static final User EMPTY = new User("", "", "", null, Role.ROLE_ANONYMOUS);
@@ -47,7 +48,7 @@ public class User {
     @Column(name = "authority", nullable = false, length = 64)
     private Role role;
 
-    @Column(length = 170)
+    @Column
     @JsonIgnore
     private String token;
 
@@ -160,5 +161,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

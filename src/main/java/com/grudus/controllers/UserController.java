@@ -4,10 +4,8 @@ import com.grudus.configuration.authentication.UserAuthenticationToken;
 import com.grudus.entities.Role;
 import com.grudus.entities.User;
 import com.grudus.entities.WaitingUser;
-import com.grudus.helpers.AuthenticationHelper;
 import com.grudus.helpers.EmailSender;
 import com.grudus.helpers.exceptions.NewUserException;
-import com.grudus.helpers.exceptions.UserAuthenticationException;
 import com.grudus.helpers.exceptions.UserNotFoundException;
 import com.grudus.helpers.validation.UserValidator;
 import com.grudus.repositories.UserRepository;
@@ -17,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
 

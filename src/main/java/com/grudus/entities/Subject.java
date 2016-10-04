@@ -13,6 +13,9 @@ public class Subject {
     @Column
     private long id;
 
+    @Column(name = "android_id")
+    private Long androidId;
+
     @Column(nullable = false, length = 64)
     private String title;
 
@@ -83,5 +86,13 @@ public class Subject {
                 ", title='" + title + '\'' +
                 ", color='" + color + '\'' +
                 '}';
+    }
+
+    public Long getAndroidId() {
+        return androidId;
+    }
+
+    public void setAndroidId(Long androidId) {
+        this.androidId = androidId;
     }
 }

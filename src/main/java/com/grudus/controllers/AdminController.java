@@ -1,7 +1,9 @@
 package com.grudus.controllers;
 
+import com.grudus.entities.Exam;
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
+import com.grudus.repositories.ExamRepository;
 import com.grudus.repositories.SubjectRepository;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,13 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final SubjectRepository subjectRepository;
+    private final ExamRepository examRepository;
 
     @Autowired
-    public AdminController(UserRepository userRepository, SubjectRepository subjectRepository) {
+    public AdminController(UserRepository userRepository, SubjectRepository subjectRepository, ExamRepository examRepository) {
         this.userRepository = userRepository;
         this.subjectRepository = subjectRepository;
+        this.examRepository = examRepository;
     }
 
     @RequestMapping("/subjects")
@@ -37,6 +41,12 @@ public class AdminController {
     @RequestMapping(method = RequestMethod.GET, value = "/users")
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+
+    @RequestMapping("/exams")
+    public List<Exam> getAllExams() {
+        return examRepository.findAll();
     }
 
     @RequestMapping("/deleteAll")

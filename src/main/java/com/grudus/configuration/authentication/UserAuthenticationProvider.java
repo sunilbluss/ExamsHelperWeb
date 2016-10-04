@@ -6,11 +6,8 @@ import com.grudus.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 
 @Component
 public class UserAuthenticationProvider implements AuthenticationProvider {
@@ -38,7 +35,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         if (!encoder.matches(password, user.getPassword()))
             throw new UserAuthenticationException("Passwords are not equals");
 
-        // TODO: 26.09.16 get authentication from user
         return new UserAuthenticationToken(user);
     }
 

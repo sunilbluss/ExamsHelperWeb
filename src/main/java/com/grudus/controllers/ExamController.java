@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static com.grudus.helpers.AuthenticationHelper.checkAuthority;
 
-// TODO: 28.09.16 delete username from url
 
 @RestController
 @RequestMapping("/api/user/{username}/exams")
