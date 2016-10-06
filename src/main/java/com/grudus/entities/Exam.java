@@ -102,4 +102,8 @@ public class Exam {
                 ", subject=" + subject +
                 '}';
     }
+
+    public static Exam empty() {
+        return new Exam("", null, User.empty(), Subject.empty());
+    }
 }

@@ -3,10 +3,17 @@ package com.grudus.controllers;
 import com.grudus.configuration.authentication.UserAuthenticationToken;
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
+import com.grudus.helpers.JsonObjectHelper;
+import com.grudus.pojos.JsonAndroidSubject;
 import com.grudus.repositories.SubjectRepository;
 import com.grudus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.grudus.helpers.AuthenticationHelper.checkAuthority;
 
@@ -43,7 +50,38 @@ public class SubjectController {
 
     }
 
-    @RequestMapping("/deleteAll")
+
+    @RequestMapping(method = RequestMethod.GET)
+    public List<JsonAndroidSubject> getAllSubjects(@PathVariable("username") String username, UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
+
+        return subjectRepository.findAll()
+                .stream()
+                .map(JsonObjectHelper::subjectObjectToJson)
+                .collect(Collectors.toList());
+    }
+
+    @RequestMapping(method = RequestMethod.POST)
+    public void firstInsert(@PathVariable("username") String username, UserAuthenticationToken currentUser,
+                            @RequestParam("subjects[]") String[] subjects) {
+        checkAuthority(currentUser, username);
+
+
+        List<Subject>  userSubjects = userRepository.findByUsername(username)
+                .orElse(User.empty())
+                .getSubjectList();
+
+        new ArrayList<>(Arrays.asList(subjects))
+                .stream()
+                .map(stringSubject -> JsonObjectHelper.fromStringJsonToObject(stringSubject, JsonAndroidSubject.class))
+                .map(jsonSubject -> JsonObjectHelper.subjectJsonToObject(jsonSubject, userRepository))
+                .filter(subject -> !userSubjects.contains(subject))
+                .forEach(subjectRepository::save);
+
+    }
+
+
+    @RequestMapping(method = RequestMethod.DELETE)
     public void deleteAllSubjects(@PathVariable("username") String username, UserAuthenticationToken currentUser) {
         checkAuthority(currentUser, username);
 
@@ -53,4 +91,6 @@ public class SubjectController {
                 .map(Subject::getId)
                 .forEach(subjectRepository::delete);
     }
+
+
 }

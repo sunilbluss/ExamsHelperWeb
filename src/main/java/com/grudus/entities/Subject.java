@@ -30,6 +30,13 @@ public class Subject {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public Subject(Long androidId, String title, String color, User user) {
+        this.androidId = androidId;
+        this.title = title;
+        this.color = color;
+        this.user = user;
+    }
+
     public Subject(String title, String color, User user) {
         this.title = title;
         this.color = color;
@@ -82,9 +89,11 @@ public class Subject {
     @Override
     public String toString() {
         return "Subject{" +
-                "id=" + id +
+//                "id=" + id +
+                "android_id= " + androidId +
                 ", title='" + title + '\'' +
                 ", color='" + color + '\'' +
+                ", user= " + (user == null ? null : user.getUsername()) +
                 '}';
     }
 
@@ -95,4 +104,25 @@ public class Subject {
     public void setAndroidId(Long androidId) {
         this.androidId = androidId;
     }
+
+    public static Subject empty() {
+        return new Subject("", "", User.empty());
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof Subject))
+            return false;
+
+        Subject sub = (Subject) obj;
+
+        return sub.getUser().getId() == this.getUser().getId()
+                && sub.getTitle().equals(this.getTitle());
+    }
+
+
 }
