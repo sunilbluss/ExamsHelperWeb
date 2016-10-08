@@ -3,6 +3,7 @@ package com.grudus.controllers;
 import com.grudus.configuration.authentication.UserAuthenticationToken;
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
+import com.grudus.helpers.Change;
 import com.grudus.helpers.JsonObjectHelper;
 import com.grudus.pojos.JsonAndroidSubject;
 import com.grudus.repositories.SubjectRepository;
@@ -63,21 +64,31 @@ public class SubjectController {
 
     @RequestMapping(method = RequestMethod.POST)
     public void firstInsert(@PathVariable("username") String username, UserAuthenticationToken currentUser,
-                            @RequestParam("subjects[]") String[] subjects) {
+                            @RequestBody JsonAndroidSubject[] subjects) {
+
+        if (subjects == null || subjects.length == 0)
+            return;
+
         checkAuthority(currentUser, username);
 
+        System.err.println("get: " + subjects.length + " -> " + Arrays.asList(subjects));
 
-        List<Subject>  userSubjects = userRepository.findByUsername(username)
-                .orElse(User.empty())
-                .getSubjectList();
 
         new ArrayList<>(Arrays.asList(subjects))
-                .stream()
-                .map(stringSubject -> JsonObjectHelper.fromStringJsonToObject(stringSubject, JsonAndroidSubject.class))
-                .map(jsonSubject -> JsonObjectHelper.subjectJsonToObject(jsonSubject, userRepository))
-                .filter(subject -> !userSubjects.contains(subject))
-                .forEach(subjectRepository::save);
+                .forEach(jsonSubject -> {
+                    String change = jsonSubject.getChange();
+                    Subject subject = JsonObjectHelper.subjectJsonToObject(jsonSubject, userRepository);
+                    if (change.equals(Change.CREATE.toString())) {
+                        subjectRepository.save(subject);
+                    }
+                    else if (change.equals(Change.DELETE.toString())) {
+                        subjectRepository.delete(subject);
+                    }
+                    else if (change.equals(Change.UPDATE.toString())) {
+                        subjectRepository.save(subject);
+                    }
 
+                });
     }
 
 

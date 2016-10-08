@@ -7,16 +7,18 @@ public class JsonAndroidSubject {
     private Long userId;
     private String title;
     private String color;
+    private String change;
 
     public JsonAndroidSubject() {
     }
 
-    public JsonAndroidSubject(Long id, Long userId, String title, String color) {
+    public JsonAndroidSubject(Long id, Long userId, String title, String color, String change) {
 
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.color = color;
+        this.change = change;
     }
 
     public Long getId() {
@@ -59,6 +61,15 @@ public class JsonAndroidSubject {
                 ", userId=" + userId +
                 ", title='" + title + '\'' +
                 ", color='" + color + '\'' +
+                ", change=" + change +
                 '}';
+    }
+
+    public String getChange() {
+        return change;
+    }
+
+    public void setChange(String change) {
+        this.change = change;
     }
 }

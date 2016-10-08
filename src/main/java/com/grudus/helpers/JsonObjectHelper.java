@@ -4,6 +4,7 @@ package com.grudus.helpers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grudus.entities.Exam;
 import com.grudus.entities.Subject;
+import com.grudus.entities.User;
 import com.grudus.pojos.JsonAndroidExam;
 import com.grudus.pojos.JsonAndroidSubject;
 import com.grudus.repositories.SubjectRepository;
@@ -44,26 +45,45 @@ public class JsonObjectHelper {
                 subject.getAndroidId(),
                 subject.getUser().getId(),
                 subject.getTitle(),
-                subject.getColor()
+                subject.getColor(),
+                null
         );
     }
 
     public static Subject subjectJsonToObject(@NotNull JsonAndroidSubject json, @NotNull UserRepository userRepository) {
+        User user = userRepository.findOne(json.getUserId());
 
-        return new Subject(
+        if (user == null)
+            return Subject.empty();
+
+        Subject newSubject = new Subject(
                 json.getId(),
                 json.getTitle(),
                 json.getColor(),
                 userRepository.findOne(json.getUserId())
         );
-    }
 
+        Subject oldSubject =  user.getSubjectList()
+                .stream()
+                .filter(subject -> subject.getTitle().equals(json.getTitle()))
+                .findAny()
+                .orElse(Subject.empty());
+
+        if (!json.getChange().equals(Change.CREATE.toString()))
+            newSubject.setId(oldSubject.getId());
+
+        return newSubject;
+
+    }
     public static <T> T fromStringJsonToObject(String json, Class<T> type) {
+        System.err.println("json: " + json + ", type: " + type.getSimpleName());
         try {
             return new ObjectMapper().readValue(json, type);
         } catch (IOException e) {
             e.printStackTrace();
-        } return null;
+        }
+        System.err.println("Null but why?");
+        return null;
 
     }
 }
