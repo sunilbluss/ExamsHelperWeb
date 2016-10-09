@@ -65,7 +65,7 @@ public class JsonObjectHelper {
 
         Subject oldSubject =  user.getSubjectList()
                 .stream()
-                .filter(subject -> subject.getTitle().equals(json.getTitle()))
+                .filter(subject -> subject.getAndroidId().equals(json.getId()))
                 .findAny()
                 .orElse(Subject.empty());
 

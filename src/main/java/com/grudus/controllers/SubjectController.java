@@ -2,9 +2,9 @@ package com.grudus.controllers;
 
 import com.grudus.configuration.authentication.UserAuthenticationToken;
 import com.grudus.entities.Subject;
-import com.grudus.entities.User;
 import com.grudus.helpers.Change;
 import com.grudus.helpers.JsonObjectHelper;
+import com.grudus.helpers.exceptions.NotFoundException;
 import com.grudus.pojos.JsonAndroidSubject;
 import com.grudus.repositories.SubjectRepository;
 import com.grudus.repositories.UserRepository;
@@ -31,25 +31,6 @@ public class SubjectController {
         this.userRepository = userRepository;
     }
 
-
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void addSubject(@PathVariable("username") String username,
-                           @RequestParam("subject") String subjectTitle,
-                           @RequestParam("color") String color,
-                           UserAuthenticationToken currentUser) {
-
-        checkAuthority(currentUser, username);
-        User user = currentUser.getUser();
-
-        if (user.getSubjectList()
-                .stream()
-                .map(Subject::getTitle)
-                .anyMatch(title -> title.equals(subjectTitle)))
-            throw new RuntimeException("subject already exist");
-
-        subjectRepository.save(new Subject(subjectTitle, "#" + color, user));
-
-    }
 
 
     @RequestMapping(method = RequestMethod.GET)
@@ -101,6 +82,63 @@ public class SubjectController {
                 .stream()
                 .map(Subject::getId)
                 .forEach(subjectRepository::delete);
+    }
+
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public void addSubject(@PathVariable("username") String username,
+                           @RequestBody JsonAndroidSubject jsonSubject,
+                           UserAuthenticationToken currentUser) {
+
+
+        System.err.println("POST: " + jsonSubject);
+        checkAuthority(currentUser, username);
+        subjectRepository.save(JsonObjectHelper.subjectJsonToObject(jsonSubject, userRepository));
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{androidId}")
+    public void updateSubject(@PathVariable("username") String username,
+                              @PathVariable("androidId") Long androidId,
+                              @RequestBody JsonAndroidSubject jsonSubject,
+                              UserAuthenticationToken currentUser) {
+
+        checkAuthority(currentUser, username);
+
+        System.err.println("PUT: " + jsonSubject);
+
+        Subject oldSubject = subjectRepository.findByUserIdAndAndroidId(currentUser.getUser().getId(), androidId)
+                .orElseThrow(NullPointerException::new);
+
+        oldSubject.setTitle(jsonSubject.getTitle());
+        oldSubject.setColor(jsonSubject.getColor());
+        oldSubject.setAndroidId(jsonSubject.getId());
+
+        subjectRepository.save(oldSubject);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{androidId}")
+    public void deleteSubject(@PathVariable("username") String username,
+                              @PathVariable("androidId") Long androidId,
+                              @RequestBody JsonAndroidSubject jsonAndroidSubject,
+                              UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
+
+        Subject subject = subjectRepository.findByUserIdAndAndroidId(jsonAndroidSubject.getUserId(), androidId)
+                .orElseThrow(NotFoundException::new);
+
+        subjectRepository.delete(subject.getId());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{androidId}")
+    public JsonAndroidSubject getSubject(@PathVariable("username") String username,
+                           @PathVariable("androidId") Long androidId,
+                           UserAuthenticationToken currentUser) {
+        checkAuthority(currentUser, username);
+
+        Subject subject = subjectRepository.findByUserIdAndAndroidId(currentUser.getUser().getId(), androidId)
+                .orElseThrow(NotFoundException::new);
+
+        return JsonObjectHelper.subjectObjectToJson(subject);
     }
 
 

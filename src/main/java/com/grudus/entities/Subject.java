@@ -121,7 +121,7 @@ public class Subject {
         Subject sub = (Subject) obj;
 
         return sub.getUser().getId() == this.getUser().getId()
-                && sub.getTitle().equals(this.getTitle());
+                && sub.getAndroidId().equals(this.getAndroidId());
     }
 
 

@@ -1,14 +1,10 @@
 package com.grudus;
 
-import com.grudus.entities.Role;
-import com.grudus.entities.User;
-import com.grudus.helpers.JsonHelper;
+import com.grudus.repositories.SubjectRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.util.Calendar;
 
 @SpringBootApplication
 public class ExamsHelperWebApplication {
@@ -19,9 +15,9 @@ public class ExamsHelperWebApplication {
 
 
 	@Bean
-	public CommandLineRunner run() {
+	public CommandLineRunner run(SubjectRepository subjectRepository) {
 		return args -> {
-			System.err.println(JsonHelper.userToJsonString(new User("kuba", "hehe", "email", Calendar.getInstance().getTime(), Role.ROLE_USER)));
+			System.out.println(subjectRepository.findByUserIdAndAndroidId(24L, 18L));
 		};
 	}
 }
