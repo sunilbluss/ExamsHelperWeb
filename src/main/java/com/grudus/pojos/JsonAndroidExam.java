@@ -1,5 +1,7 @@
 package com.grudus.pojos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 
@@ -9,14 +11,20 @@ public class JsonAndroidExam {
     private Long subjectId;
     private Long userId;
     private String examInfo;
+
+
+    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss", locale = "en")
     private Date date;
 
-    public JsonAndroidExam(Long id, Long subjectId, Long userId, String examInfo, Date date) {
+    private String change;
+
+    public JsonAndroidExam(Long id, Long subjectId, Long userId, String examInfo, Date date, String change) {
         this.id = id;
         this.subjectId = subjectId;
         this.userId = userId;
         this.examInfo = examInfo;
         this.date = date;
+        this.change = change;
     }
 
     public JsonAndroidExam() {
@@ -71,6 +79,13 @@ public class JsonAndroidExam {
                 ", userId=" + userId +
                 ", examInfo='" + examInfo + '\'' +
                 ", date=" + date +
+                ", change=" + change +
                 '}';
     }
+
+    public String getChange() {
+        return change;
+    }
+
+
 }

@@ -36,7 +36,8 @@ public class Exam {
     public Exam() {
     }
 
-    public Exam(String examInfo, Date date, User user, Subject subject) {
+    public Exam(Long androidId, String examInfo, Date date, User user, Subject subject) {
+        this.androidId = androidId;
         this.examInfo = examInfo;
         this.date = date;
         this.user = user;
@@ -104,6 +105,6 @@ public class Exam {
     }
 
     public static Exam empty() {
-        return new Exam("", null, User.empty(), Subject.empty());
+        return new Exam(-1L, "", null, User.empty(), Subject.empty());
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grudus.entities.Exam;
 import com.grudus.entities.Subject;
 import com.grudus.entities.User;
+import com.grudus.helpers.exceptions.NotFoundException;
 import com.grudus.pojos.JsonAndroidExam;
 import com.grudus.pojos.JsonAndroidSubject;
 import com.grudus.repositories.SubjectRepository;
@@ -21,19 +22,18 @@ public class JsonObjectHelper {
                 exam.getSubject().getId(),
                 exam.getUser().getId(),
                 exam.getExamInfo(),
-                exam.getDate());
+                exam.getDate(), null);
     }
 
     public static Exam jsonExamToObject(JsonAndroidExam json, @NotNull SubjectRepository subjectRepository) {
         if (subjectRepository == null)
             return Exam.empty();
 
-        Subject subject = subjectRepository.findOne(json.getSubjectId());
-
-        if (subject == null)
-            return Exam.empty();
+        Subject subject = subjectRepository.findByUserIdAndAndroidId(json.getUserId(), json.getSubjectId())
+                .orElseThrow(NotFoundException::new);
 
         return new Exam(
+                json.getId(),
                 json.getExamInfo(),
                 json.getDate(),
                 subject.getUser(),

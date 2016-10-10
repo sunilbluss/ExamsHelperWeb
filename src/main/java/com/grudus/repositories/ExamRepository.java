@@ -12,4 +12,6 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
 
     Optional<Exam> findById(Long id);
     List<Exam> findByUser(User user);
+
+    Optional<Exam> findByUserIdAndAndroidId(Long userId, Long androidId);
 }
